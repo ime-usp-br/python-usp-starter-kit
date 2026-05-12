@@ -42,7 +42,7 @@ Diferente de um projeto Django comum, ele já nasce integrado à infraestrutura 
 
 1.  **Clone o repositório:**
     ```bash
-    git clone https://github.com/ayrtonnotrya/python-usp-starter-kit.git meu-projeto
+    git clone https://github.com/ime-usp-br/python-usp-starter-kit.git meu-projeto
     cd meu-projeto
     ```
 
@@ -51,15 +51,22 @@ Diferente de um projeto Django comum, ele já nasce integrado à infraestrutura 
     poetry install
     ```
 
-3.  **Suba a infraestrutura:**
+3.  **Configure as Variáveis de Ambiente:**
+    Crie o arquivo de configuração a partir do modelo antes de iniciar os contêineres:
+    ```bash
+    cp .env.example .env
+    ```
+    > ⚠️ **Nota:** Lembre-se de abrir o arquivo `.env` recém-criado e preencher as variáveis necessárias (senhas, chaves e credenciais) antes de prosseguir para o próximo passo.
+
+4.  **Suba a infraestrutura:**
     ```bash
     # Inicia Banco (Postgres), Redis e a Aplicação Web
-    docker-compose up -d --build
+    docker compose up -d --build
     ```
 
-4.  **Execute as migrações iniciais:**
+5.  **Execute as migrações iniciais:**
     ```bash
-    docker-compose exec web python manage.py migrate
+    docker compose exec web python manage.py migrate
     ```
 
 Acesse em: `http://localhost:8000`
@@ -68,8 +75,7 @@ Acesse em: `http://localhost:8000`
 
 ## 4. Configuração do Ambiente (.env)
 
-Copie o arquivo de exemplo: `cp .env.example .env`.
-Abaixo estão as variáveis críticas que conectam sua aplicação ao ecossistema da USP.
+Abaixo estão as variáveis críticas presentes no seu arquivo `.env` que conectam sua aplicação ao ecossistema da USP.
 
 | Categoria | Variável | Descrição |
 | :--- | :--- | :--- |
