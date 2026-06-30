@@ -81,17 +81,16 @@ Abaixo estão as variáveis críticas presentes no seu arquivo `.env` que conect
 | | `DEBUG` | `True`/`False` (modo debug do Django). |
 | | `ALLOWED_HOSTS` | Hosts permitidos, separados por vírgula (ex: `localhost,127.0.0.1`). |
 | | `WEB_PORT` | Porta exposta no host pelo `web` (padrão `8000`). |
-| | `REDIS_PORT` | Porta exposta no host pelo `redis` (padrão `6379`). |
 | **Senha Única** | `SENHAUNICA_KEY` | *Consumer Key* fornecida pela STI. |
 | | `SENHAUNICA_SECRET` | *Consumer Secret* fornecida pela STI. |
 | | `SENHAUNICA_CALLBACK_ID` | ID de callback registrado junto à STI. Obrigatório. A URL de callback é montada automaticamente a partir da rota `/callback/`. |
-| | `SENHAUNICA_ENV` | Endpoints da USP: `dev` (homologação) ou `prod` (padrão). |
+| | `SENHAUNICA_ENV` | Endpoints da USP: `prod` (padrão) ou `dev` (homologação). |
 | **Replicado** | `REPLICADO_HOST` | Host/IP do servidor da réplica local. |
-| | `REPLICADO_PORT` | Porta (padrão `5000` Sybase ou `1433` MSSQL). |
+| | `REPLICADO_PORT` | Porta do servidor: `1433` (MSSQL, padrão) ou `5000` (Sybase legado). |
 | | `REPLICADO_DATABASE` | Nome do banco (ex: `replicado`). |
 | | `REPLICADO_USERNAME` | Usuário de leitura. |
 | | `REPLICADO_PASSWORD` | Senha do banco. |
-| | `REPLICADO_SYBASE` | `1` (ou `True`) para forçar compatibilidade com drivers legados. |
+| | `REPLICADO_SYBASE` | `1` (ou `True`) apenas para compatibilidade com drivers legados Sybase. Deixe em branco para MSSQL puro. |
 
 ---
 
