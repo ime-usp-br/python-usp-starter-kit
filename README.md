@@ -25,7 +25,7 @@ Diferente de um projeto Django comum, ele já nasce integrado à infraestrutura 
     *   Camada de dados híbrida: **SQLAlchemy 2.0** para consultas de alta performance no Sybase/MSSQL e **Django ORM** para dados locais.
     *   Models pré-mapeados para tabelas comuns (Pessoa, Graduação, Pós).
 *   **Infraestrutura de Background:**
-    *   **Celery + Redis** configurados para filas de tarefas assíncronas (envio de e-mails, processamento de dados).
+    *   **Redis** pronto para cache/filas, incluído como serviço no `docker-compose.yml`. (A integração com Celery fica como etapa de configuração posterior.)
 *   **Monitoramento e Logs:**
     *   Logging estruturado pronto para ingestão (Graylog/Elastic).
     *   Auditoria automática de ações de usuários.
@@ -36,7 +36,7 @@ Diferente de um projeto Django comum, ele já nasce integrado à infraestrutura 
 
 ### Pré-requisitos
 *   Docker & Docker Compose
-*   Poetry 1.8+
+*   (Opcional) Poetry 1.8+ — necessário apenas para rodar lint/testes localmente; o deploy via Docker instala as dependências dentro do contêiner.
 
 ### Passo a Passo
 
@@ -46,26 +46,23 @@ Diferente de um projeto Django comum, ele já nasce integrado à infraestrutura 
     cd meu-projeto
     ```
 
-2.  **Instale as dependências (Local):**
-    ```bash
-    poetry install
-    ```
-
-3.  **Configure as Variáveis de Ambiente:**
+2.  **Configure as Variáveis de Ambiente:**
     Crie o arquivo de configuração a partir do modelo antes de iniciar os contêineres:
     ```bash
     cp .env.example .env
     ```
-    > ⚠️ **Nota:** Lembre-se de abrir o arquivo `.env` recém-criado e preencher as variáveis necessárias (senhas, chaves e credenciais) antes de prosseguir para o próximo passo.
+    > ⚠️ **Nota:** Lembre-se de abrir o arquivo `.env` recém-criado e preencher as variáveis necessárias (senhas, chaves e credenciais) — em especial `SENHAUNICA_KEY`, `SENHAUNICA_SECRET`, `SENHAUNICA_CALLBACK_ID` e o bloco `REPLICADO_*` — antes de prosseguir.
 
-4.  **Suba a infraestrutura:**
+3.  **Suba a infraestrutura:**
     ```bash
-    # Inicia Banco (Postgres), Redis e a Aplicação Web
+    # Constroi a imagem e inicia Banco (Postgres), Redis e a Aplicação Web
     docker compose up -d --build
     ```
+    O `entrypoint` (`scripts/entrypoint.sh`) aplica as **migrações** e o `collectstatic` automaticamente a cada subida do contêiner `web`, então não é preciso executá-los manualmente.
 
-5.  **Execute as migrações iniciais:**
+4.  **(Opcional) Reaplique migrações manualmente:**
     ```bash
+    # Use apenas se precisar reaplicar migrações fora do boot do contêiner:
     docker compose exec web python manage.py migrate
     ```
 
@@ -81,15 +78,20 @@ Abaixo estão as variáveis críticas presentes no seu arquivo `.env` que conect
 | :--- | :--- | :--- |
 | **Geral** | `DJANGO_ENV` | `development` ou `production`. |
 | | `SECRET_KEY` | Chave criptográfica do Django. |
+| | `DEBUG` | `True`/`False` (modo debug do Django). |
+| | `ALLOWED_HOSTS` | Hosts permitidos, separados por vírgula (ex: `localhost,127.0.0.1`). |
+| | `WEB_PORT` | Porta exposta no host pelo `web` (padrão `8000`). |
+| | `REDIS_PORT` | Porta exposta no host pelo `redis` (padrão `6379`). |
 | **Senha Única** | `SENHAUNICA_KEY` | *Consumer Key* fornecida pela STI. |
 | | `SENHAUNICA_SECRET` | *Consumer Secret* fornecida pela STI. |
-| | `SENHAUNICA_CALLBACK_URL` | Ex: `http://localhost:8000/callback`. |
-| **Replicado** | `REPLICADO_HOST` | IP do servidor da réplica local. |
+| | `SENHAUNICA_CALLBACK_ID` | ID de callback registrado junto à STI. Obrigatório. A URL de callback é montada automaticamente a partir da rota `/callback/`. |
+| | `SENHAUNICA_ENV` | Endpoints da USP: `dev` (homologação) ou `prod` (padrão). |
+| **Replicado** | `REPLICADO_HOST` | Host/IP do servidor da réplica local. |
 | | `REPLICADO_PORT` | Porta (padrão `5000` Sybase ou `1433` MSSQL). |
-| | `REPLICADO_DATABASE` | Nome do banco (ex: `replicacao`). |
+| | `REPLICADO_DATABASE` | Nome do banco (ex: `replicado`). |
 | | `REPLICADO_USERNAME` | Usuário de leitura. |
 | | `REPLICADO_PASSWORD` | Senha do banco. |
-| | `REPLICADO_SYBASE` | `True` para forçar compatibilidade com drivers legados. |
+| | `REPLICADO_SYBASE` | `1` (ou `True`) para forçar compatibilidade com drivers legados. |
 
 ---
 
